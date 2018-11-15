@@ -1,5 +1,7 @@
 package apidocmd
 
+import "fmt"
+
 func Convert(inputDir, outputPath string) error {
 	// read api project
 	proj, err := readProject(inputDir)
@@ -25,6 +27,8 @@ func Convert(inputDir, outputPath string) error {
 	if err := buf.writeToFile(outputPath); err != nil {
 		return err
 	}
+
+	fmt.Println(fmt.Sprintf("[success] writed to %s", outputPath))
 
 	return nil
 }
