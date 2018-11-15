@@ -1,3 +1,7 @@
+## License
+
+MIT
+
 ## Installation
 
 ```bash
