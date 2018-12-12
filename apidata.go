@@ -98,7 +98,8 @@ type response struct {
 }
 
 type request struct {
-	Fields map[string][]field `json:"fields"`
+	Fields   map[string][]field `json:"fields"`
+	Examples []example          `json:"examples"`
 }
 
 type content struct {
@@ -159,31 +160,53 @@ func (d apiData) addRequestParameter(buf *buffer) error {
 | Field | Optional | Type | Description |
 |---|---|---|---|
 `
-		for _, v2 := range v {
+		sort.Slice(v, func(i, j int) bool {
+			return v[i].Field < v[j].Field
+		})
+		for _, d := range v {
+			keyPath := strings.Split(d.Field, ".")
+			field := strings.Repeat("&nbsp;&nbsp;&nbsp;", len(keyPath)-1) + keyPath[len(keyPath)-1]
+
 			// optional
 			opt := "N"
-			if v2.Optional {
+			if d.Optional {
 				opt = "Y"
 			}
 
 			// description
-			desc := strings.NewReplacer("<p>", "", "</p>", "").Replace(v2.Description)
-			if v2.DefaultValue != "" {
+			desc := strings.NewReplacer("<p>", "", "</p>", "").Replace(d.Description)
+			if d.DefaultValue != "" {
 				desc += brTag
-				desc += "Default value: " + fmt.Sprintf("`%s`", v2.DefaultValue)
+				desc += "Default value: " + fmt.Sprintf("`%s`", d.DefaultValue)
 			}
-			if len(v2.AllowedValues) > 0 {
+			if len(d.AllowedValues) > 0 {
 				desc += brTag
-				allows := v2.AllowedValues
+				allows := d.AllowedValues
 				for i, j := range allows {
 					allows[i] = fmt.Sprintf("`%s`", j)
 				}
 				desc += "Allowed values: " + strings.Join(allows, ",")
 			}
 
-			tbl += fmt.Sprintf("| %s | %s | %s | %s |\n", v2.Field, opt, v2.Type, desc)
+			tbl += fmt.Sprintf("| %s | %s | %s | %s |\n", field, opt, d.Type, desc)
 		}
 		if _, err := buf.Writeln(tbl); err != nil {
+			return err
+		}
+	}
+
+	for _, v := range d.Parameter.Examples {
+		if _, err := buf.Writeln("<details><summary><b>%s</b></summary><div>", v.Title); err != nil {
+			return err
+		}
+
+		content := fmt.Sprintf("```%s\n", v.Type)
+		content += fmt.Sprintf("%s\n", v.Content)
+		content += fmt.Sprintf("```\n")
+		if _, err := buf.Writeln(content); err != nil {
+			return err
+		}
+		if _, err := buf.Writeln("</div></details>"); err != nil {
 			return err
 		}
 	}
@@ -220,7 +243,7 @@ func (d apiData) addSuccessResponse(buf *buffer) error {
 		if _, err := buf.Writeln("<details><summary><b>%s</b></summary><div>", v.Title); err != nil {
 			return err
 		}
-		//buf.Writeln("#### %s", v.Title)
+
 		content := fmt.Sprintf("```%s\n", v.Type)
 		content += fmt.Sprintf("%s\n", v.Content)
 		content += fmt.Sprintf("```\n")
