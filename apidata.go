@@ -222,17 +222,23 @@ func (d apiData) addSuccessResponse(buf *buffer) error {
 		}
 
 		tbl := `
-| Field | Type | Description |
-|---|---|---|
+| Field | Nullable | Type | Description |
+|---|---|---|---|
 `
 		sort.Slice(v, func(i, j int) bool {
 			return v[i].Field < v[j].Field
 		})
 		for _, d := range v {
+			// optional
+			opt := "N"
+			if d.Optional {
+				opt = "Y"
+			}
+
 			keyPath := strings.Split(d.Field, ".")
 			field := strings.Repeat("&nbsp;&nbsp;&nbsp;", len(keyPath)-1) + keyPath[len(keyPath)-1]
 			desc := strings.NewReplacer("<p>", "", "</p>", "").Replace(d.Description)
-			tbl += fmt.Sprintf("| %s | %s | %s |\n", field, d.Type, desc)
+			tbl += fmt.Sprintf("| %s | %s | %s | %s |\n", field, opt, d.Type, desc)
 		}
 		if _, err := buf.Writeln(tbl); err != nil {
 			return err
@@ -266,17 +272,23 @@ func (d apiData) addErrorResponse(buf *buffer) error {
 		}
 
 		tbl := `
-| Name | Type | Description |
-|---|---|---|
+| Name | Nullable | Type | Description |
+|---|---|---|---|
 `
 		sort.Slice(v, func(i, j int) bool {
 			return v[i].Field < v[j].Field
 		})
 		for _, d := range v {
+			// optional
+			opt := "N"
+			if d.Optional {
+				opt = "Y"
+			}
+
 			keyPath := strings.Split(d.Field, ".")
 			field := strings.Repeat("&nbsp;&nbsp;&nbsp;", len(keyPath)-1) + keyPath[len(keyPath)-1]
 			desc := strings.NewReplacer("<p>", "", "</p>", "").Replace(d.Description)
-			tbl += fmt.Sprintf("| %s | %s | %s |\n", field, d.Type, desc)
+			tbl += fmt.Sprintf("| %s | %s | %s | %s |\n", field, opt, d.Type, desc)
 		}
 		if _, err := buf.Writeln(tbl); err != nil {
 			return err
