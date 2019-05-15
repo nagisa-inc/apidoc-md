@@ -237,7 +237,17 @@ func (d apiData) addSuccessResponse(buf *buffer) error {
 
 			keyPath := strings.Split(d.Field, ".")
 			field := strings.Repeat("&nbsp;&nbsp;&nbsp;", len(keyPath)-1) + keyPath[len(keyPath)-1]
+
+			// description
 			desc := strings.NewReplacer("<p>", "", "</p>", "").Replace(d.Description)
+			if len(d.AllowedValues) > 0 {
+				desc += brTag
+				allows := d.AllowedValues
+				for i, j := range allows {
+					allows[i] = fmt.Sprintf("`%s`", j)
+				}
+				desc += "Allowed values: " + strings.Join(allows, ",")
+			}
 			tbl += fmt.Sprintf("| %s | %s | %s | %s |\n", field, opt, d.Type, desc)
 		}
 		if _, err := buf.Writeln(tbl); err != nil {
