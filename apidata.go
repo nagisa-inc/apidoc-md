@@ -248,6 +248,7 @@ func (d apiData) addSuccessResponse(buf *buffer) error {
 				}
 				desc += "Allowed values: " + strings.Join(allows, ",")
 			}
+
 			tbl += fmt.Sprintf("| %s | %s | %s | %s |\n", field, opt, d.Type, desc)
 		}
 		if _, err := buf.Writeln(tbl); err != nil {
