@@ -16,11 +16,11 @@ func main() {
 	app.Description = "Convert apiDoc (http://apidocjs.com) documentation to markdown"
 	app.Version = "1.0.0"
 	app.Flags = []cli.Flag{
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "input, i",
 			Usage: "input apidoc `DIR` path",
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:  "output, o",
 			Usage: "output markdown `FILE` path",
 		},
